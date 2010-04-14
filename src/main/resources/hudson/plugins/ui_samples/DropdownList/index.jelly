@@ -23,21 +23,28 @@ THE SOFTWARE.
 -->
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:s="/lib/samples">
-  <l:layout title="UI Samples">
-    <l:main-panel>
-      <h1>UI Samples</h1>
-
+  <s:sample title="Dropdown List Sample">
+    <form action="submit" method="post">
       <table>
-        <j:forEach var="s" items="${it.all}">
-          <t:summary icon="document.gif"
-                     href="${s.urlName}" iconOnly="true">
-            <div class="link"><a href="${href}">${s.displayName}</a></div>
-            <div style="color:gray; text-decoration:none;">
-              <j:out value="${s.description}"/>
-            </div>
-          </t:summary>
-        </j:forEach>
+        <j:set var="currentFruit" value="${it.fruit}"/>
+        <!-- getJSONObject("fruit") in java code gets data for this block -->
+        <!-- A @DataBoundConstructor with parameter "Fruit fruit" can also be used -->
+        <f:dropdownList name="fruit" title="Fruits">
+          <!-- Loop through available fruit types -->
+          <j:forEach var="descriptor" items="${it.fruitDescriptors}" varStatus="loop">
+            <!-- Set "fruit" only if it matches this descriptor -->
+            <j:set var="fruit" value="${descriptor==currentFruit.descriptor?currentFruit:null}"/>
+            <f:dropdownListBlock title="${descriptor.displayName}" value="${loop.index}"
+                                 selected="${fruit!=null}" staplerClass="${descriptor.clazz.name}">
+              <!-- Include config.jelly for this fruit type -->
+              <st:include page="${descriptor.configPage}" from="${descriptor}"/>
+            </f:dropdownListBlock>
+          </j:forEach>
+        </f:dropdownList>
+        <f:entry title="" >
+          <f:submit value="Submit"/>
+        </f:entry>
       </table>
-    </l:main-panel>
-  </l:layout>
+    </form>
+  </s:sample>
 </j:jelly>
